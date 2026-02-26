@@ -1,5 +1,7 @@
 # Model Price Compare
 
+[model-price-compare.vercel.app](https://model-price-compare.vercel.app)
+
 A minimal pricing comparison table for major AI models.
 
 ## Why?
