@@ -111,18 +111,6 @@ function CompanyIcon({ company, className }: { company: string; className?: stri
   );
 }
 
-const PROVIDER_COLORS: Record<string, string> = {
-  openai: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
-  anthropic: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
-  google: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
-  deepseek: "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20",
-  meta: "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20",
-  mistral: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20",
-  cohere: "bg-pink-500/10 text-pink-600 dark:text-pink-400 border-pink-500/20",
-  xai: "bg-neutral-500/10 text-neutral-600 dark:text-neutral-400 border-neutral-500/20",
-  perplexity: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20",
-  groq: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
-};
 
 function formatPrice(price: number | undefined): string {
   if (price === undefined || price === null) return "—";
@@ -589,7 +577,7 @@ export function ModelPricingTable() {
                       variant="outline"
                       className={cn(
                         "font-mono text-[10px] uppercase tracking-wider",
-                        PROVIDER_COLORS[model.provider] || "bg-muted"
+                        "bg-muted"
                       )}
                     >
                       {model.provider}
