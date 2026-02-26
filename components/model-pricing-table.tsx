@@ -167,18 +167,18 @@ function CopyableModelName({ name, className }: { name: string; className?: stri
   };
 
   return (
-    <span className={cn("group/copy inline-flex items-center gap-1", className)}>
+    <span
+      onClick={handleCopy}
+      className={cn("group/copy inline-flex items-center gap-1 cursor-pointer", className)}
+    >
       <span>{name}</span>
-      <button
-        onClick={handleCopy}
-        className="opacity-0 group-hover/copy:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
-      >
+      <span className="opacity-0 group-hover/copy:opacity-100 transition-opacity text-muted-foreground">
         {copied ? (
           <RiCheckLine className="size-3.5" />
         ) : (
           <RiFileCopyLine className="size-3.5" />
         )}
-      </button>
+      </span>
     </span>
   );
 }
@@ -559,10 +559,6 @@ export function ModelPricingTable() {
                 ))}
               </PopoverContent>
             </Popover>
-
-            <div className="ml-auto text-xs text-muted-foreground">
-              {filteredAndSortedModels.length} models
-            </div>
           </div>
 
           {/* Company chips */}
@@ -669,7 +665,7 @@ export function ModelPricingTable() {
                 >
                   <TableCell className="font-medium sticky left-0 z-10 shadow-[inset_-1px_0_0_hsl(var(--border))] bg-background group-hover:bg-zinc-900 max-w-[150px] sm:max-w-none">
                     <div className="flex items-start gap-2.5">
-                      <CompanyIcon company={model.company} className="size-5 mt-0.5 shrink-0" />
+                      <CompanyIcon company={model.company} className="size-5 mt-0.5 shrink-0 hidden sm:block" />
                       <div className="flex flex-col min-w-0">
                         <span className="truncate">{model.name}</span>
                         {model.name !== model.id && (
