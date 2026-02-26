@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { RiFileCopyLine, RiCheckLine } from "@remixicon/react";
+import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type SortField = "input" | "output" | "context" | "name";
@@ -312,15 +313,7 @@ export function ModelPricingTable() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative w-12 h-12">
-            <div className="absolute inset-0 border-2 border-primary/20" />
-            <div className="absolute inset-0 border-2 border-primary border-t-transparent animate-spin" />
-          </div>
-          <span className="text-muted-foreground text-sm tracking-widest uppercase">
-            Loading models...
-          </span>
-        </div>
+        <Loader2 className="w-6 h-6 text-primary animate-spin" />
       </div>
     );
   }
@@ -538,7 +531,7 @@ export function ModelPricingTable() {
         {/* Footer note */}
         <div className="mt-4 text-xs text-muted-foreground">
           <p>
-            Prices per 1M tokens. Data sourced from{" "}
+            Data sourced from{" "}
             <a
               href="https://models.dev"
               target="_blank"
@@ -547,7 +540,6 @@ export function ModelPricingTable() {
             >
               models.dev
             </a>
-            . For authoritative pricing, check your provider's official documentation.
           </p>
         </div>
       </div>
