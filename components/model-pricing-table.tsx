@@ -472,7 +472,7 @@ export function ModelPricingTable() {
                 className={cn(
                   "px-3 py-1 text-xs font-medium border transition-colors inline-flex items-center gap-1.5",
                   selectedCompanies.has(company)
-                    ? "border-transparent bg-primary/10 text-primary"
+                    ? "border-primary/40 bg-primary/10 text-primary"
                     : "border-border bg-background text-muted-foreground hover:bg-muted"
                 )}
               >
