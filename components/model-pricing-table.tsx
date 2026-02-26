@@ -289,7 +289,7 @@ export function ModelPricingTable() {
   const [sortField, setSortField] = React.useState<SortField>("input");
   const [sortDirection, setSortDirection] = React.useState<SortDirection>("desc");
   const [visibleColumns, setVisibleColumns] = React.useState<Set<OptionalColumn>>(
-    new Set(["provider"])
+    new Set<OptionalColumn>(["capabilities"])
   );
 
   const toggleColumn = (col: OptionalColumn) => {
@@ -608,12 +608,12 @@ export function ModelPricingTable() {
       {/* Table */}
       <div className="max-w-7xl mx-auto px-6 py-6">
         <TooltipProvider>
-        <div className="border border-border">
-          <Table>
+        <div className="border border-border overflow-x-auto">
+          <Table className="[&_[data-slot=table-container]]:overflow-visible">
             <TableHeader>
               <TableRow className="bg-muted/50 hover:bg-muted/50">
                 <TableHead
-                  className="cursor-pointer group"
+                  className="cursor-pointer group sticky left-0 z-20 bg-zinc-900 shadow-[inset_-1px_0_0_hsl(var(--border))] w-[150px] sm:w-auto max-w-[150px] sm:max-w-none"
                   onClick={() => handleSort("name")}
                 >
                   Model
@@ -665,18 +665,15 @@ export function ModelPricingTable() {
               {filteredAndSortedModels.map((model, idx) => (
                 <TableRow
                   key={`${model.provider}-${model.id}`}
-                  className={cn(
-                    "transition-colors",
-                    idx % 2 === 0 ? "bg-background" : "bg-muted/20"
-                  )}
+                  className="group hover:!bg-zinc-900"
                 >
-                  <TableCell className="font-medium">
+                  <TableCell className="font-medium sticky left-0 z-10 shadow-[inset_-1px_0_0_hsl(var(--border))] bg-background group-hover:bg-zinc-900 max-w-[150px] sm:max-w-none">
                     <div className="flex items-start gap-2.5">
                       <CompanyIcon company={model.company} className="size-5 mt-0.5 shrink-0" />
-                      <div className="flex flex-col">
-                        <span>{model.name}</span>
+                      <div className="flex flex-col min-w-0">
+                        <span className="truncate">{model.name}</span>
                         {model.name !== model.id && (
-                          <CopyableModelName name={model.id} className="text-[10px] text-muted-foreground font-mono" />
+                          <CopyableModelName name={model.id} className="text-[10px] text-muted-foreground font-mono truncate" />
                         )}
                       </div>
                     </div>
