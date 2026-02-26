@@ -1,8 +1,6 @@
 # Model Price Compare
 
-[model-price-compare.vercel.app](https://model-price-compare.vercel.app)
-
-Quickly compare pricing across different AI providers.
+Quickly compare pricing across different AI providers — [model-price-compare.vercel.app](https://model-price-compare.vercel.app)
 
 <p align="center">
   <img src="public/screenshot.png" alt="Model Price Compare" width="720" />
