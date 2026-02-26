@@ -1,9 +1,9 @@
 # Model Price Compare
 
-Quickly compare pricing across different AI providers — [model-price-compare.vercel.app](https://model-price-compare.vercel.app)
-
 <p align="center">
   <img src="public/screenshot.png" alt="Model Price Compare" width="720" />
+  <br><br>
+  Quickly compare pricing across different AI providers · <a href="https://model-price-compare.vercel.app">model-price-compare.vercel.app</a>
 </p>
 
 ## Why?
