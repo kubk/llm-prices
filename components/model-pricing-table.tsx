@@ -342,17 +342,11 @@ export function ModelPricingTable() {
       <header className="border-b border-border">
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex flex-col gap-2">
-            <div className="flex items-baseline gap-3">
-              <h1 className="text-2xl font-semibold tracking-tight">
-                Model Pricing
-              </h1>
-              <span className="text-muted-foreground text-sm">
-                Top 50 Models
-              </span>
-            </div>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Model Pricing
+            </h1>
             <p className="text-muted-foreground text-sm max-w-2xl">
-              Compare input, output, and cache pricing across major AI providers.
-              Prices shown per 1M tokens.
+              Compare pricing across AI providers. Per 1M tokens.
             </p>
           </div>
         </div>
@@ -416,10 +410,7 @@ export function ModelPricingTable() {
                 className={cn(
                   "px-3 py-1 text-xs font-medium border transition-colors",
                   selectedCompanies.has(company)
-                    ? cn(
-                        "border-transparent",
-                        PROVIDER_COLORS[company] || "bg-primary/10 text-primary"
-                      )
+                    ? "border-transparent bg-primary/10 text-primary"
                     : "border-border bg-background text-muted-foreground hover:bg-muted"
                 )}
               >
