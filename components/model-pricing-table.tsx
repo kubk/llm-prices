@@ -41,7 +41,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type SortField = "input" | "output" | "context" | "name";
+type SortField = "input" | "output" | "context" | "name" | "releaseDate";
 type SortDirection = "asc" | "desc";
 
 // Capability filter options based on output modalities
@@ -422,6 +422,10 @@ export function ModelPricingTable() {
           aVal = a.name.toLowerCase();
           bVal = b.name.toLowerCase();
           break;
+        case "releaseDate":
+          aVal = a.releaseDate ? new Date(a.releaseDate).getTime() : undefined;
+          bVal = b.releaseDate ? new Date(b.releaseDate).getTime() : undefined;
+          break;
       }
 
       if (aVal === undefined && bVal === undefined) return 0;
@@ -644,7 +648,13 @@ export function ModelPricingTable() {
                   <TableHead className="text-right">Reasoning</TableHead>
                 )}
                 {visibleColumns.has("releaseDate") && (
-                  <TableHead>Released</TableHead>
+                  <TableHead
+                    className="cursor-pointer group"
+                    onClick={() => handleSort("releaseDate")}
+                  >
+                    Released
+                    <SortIndicator field="releaseDate" />
+                  </TableHead>
                 )}
                 {visibleColumns.has("knowledge") && (
                   <TableHead>Knowledge</TableHead>
