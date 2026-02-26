@@ -42,6 +42,75 @@ interface ModelRow {
   outputModalities: string[];
 }
 
+// Icons that need dark:invert because they are dark on transparent background
+const DARK_INVERT_ICONS = new Set(["openai", "meta", "meta-llama", "perplexity"]);
+
+// Company icon URLs - scraped from OpenRouter, with Google favicon fallback
+const COMPANY_ICONS: Record<string, string> = {
+  openai: "https://openrouter.ai/images/icons/OpenAI.svg",
+  google: "https://openrouter.ai/images/icons/GoogleGemini.svg",
+  anthropic: "https://openrouter.ai/images/icons/Anthropic.svg",
+  deepseek: "https://openrouter.ai/images/icons/DeepSeek.png",
+  meta: "https://openrouter.ai/images/icons/Meta.png",
+  "meta-llama": "https://openrouter.ai/images/icons/Meta.png",
+  mistral: "https://openrouter.ai/images/icons/Mistral.png",
+  mistralai: "https://openrouter.ai/images/icons/Mistral.png",
+  cohere: "https://openrouter.ai/images/icons/Cohere.png",
+  perplexity: "https://openrouter.ai/images/icons/Perplexity.svg",
+};
+
+// Fallback: Google Favicon service for companies without OpenRouter icons
+const COMPANY_WEBSITES: Record<string, string> = {
+  moonshotai: "https://moonshot.ai",
+  alibaba: "https://qwenlm.ai",
+  amazon: "https://nova.amazon.com",
+  "arcee-ai": "https://arcee.ai",
+  bytedance: "https://bytedance.com",
+  inception: "https://www.inceptionlabs.ai",
+  meituan: "https://meituan.com",
+  minimax: "https://minimaxi.com",
+  morph: "https://morph.so",
+  nvidia: "https://nvidia.com",
+  "prime-intellect": "https://www.primeintellect.ai",
+  vercel: "https://vercel.com",
+  voyage: "https://voyageai.com",
+  xai: "https://x.ai",
+  "x-ai": "https://x.ai",
+  xiaomi: "https://xiaomi.com",
+  zai: "https://zai.com",
+};
+
+function getCompanyIconUrl(company: string): string | null {
+  if (COMPANY_ICONS[company]) return COMPANY_ICONS[company];
+  if (COMPANY_WEBSITES[company]) {
+    return `https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${COMPANY_WEBSITES[company]}&size=128`;
+  }
+  return null;
+}
+
+function CompanyIcon({ company, className }: { company: string; className?: string }) {
+  const [error, setError] = React.useState(false);
+  const url = getCompanyIconUrl(company);
+
+  if (!url || error) {
+    // Fallback: first letter of company
+    return (
+      <div className={cn("flex items-center justify-center rounded-sm bg-muted text-[9px] font-bold uppercase text-muted-foreground", className)}>
+        {company.charAt(0)}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={url}
+      alt={company}
+      className={cn("rounded-sm object-contain", DARK_INVERT_ICONS.has(company) && "dark:invert", className)}
+      onError={() => setError(true)}
+    />
+  );
+}
+
 const PROVIDER_COLORS: Record<string, string> = {
   openai: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
   anthropic: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
@@ -401,12 +470,13 @@ export function ModelPricingTable() {
                 key={company}
                 onClick={() => toggleCompany(company)}
                 className={cn(
-                  "px-3 py-1 text-xs font-medium border transition-colors",
+                  "px-3 py-1 text-xs font-medium border transition-colors inline-flex items-center gap-1.5",
                   selectedCompanies.has(company)
                     ? "border-transparent bg-primary/10 text-primary"
                     : "border-border bg-background text-muted-foreground hover:bg-muted"
                 )}
               >
+                <CompanyIcon company={company} className="size-3.5 shrink-0" />
                 {company.charAt(0).toUpperCase() + company.slice(1)}
               </button>
             ))}
@@ -481,11 +551,14 @@ export function ModelPricingTable() {
                   )}
                 >
                   <TableCell className="font-medium">
-                    <div className="flex flex-col">
-                      <span>{model.name}</span>
-                      {model.name !== model.id && (
-                        <CopyableModelName name={model.id} className="text-[10px] text-muted-foreground font-mono" />
-                      )}
+                    <div className="flex items-start gap-2.5">
+                      <CompanyIcon company={model.company} className="size-5 mt-0.5 shrink-0" />
+                      <div className="flex flex-col">
+                        <span>{model.name}</span>
+                        {model.name !== model.id && (
+                          <CopyableModelName name={model.id} className="text-[10px] text-muted-foreground font-mono" />
+                        )}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell className="text-right font-mono tabular-nums">
