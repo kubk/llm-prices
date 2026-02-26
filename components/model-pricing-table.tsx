@@ -396,7 +396,7 @@ export function ModelPricingTable() {
               Model Pricing
             </h1>
             <p className="text-muted-foreground text-sm max-w-2xl">
-              Compare pricing across AI providers. Per 1M tokens.
+              Compare pricing across AI providers
             </p>
           </div>
         </div>
