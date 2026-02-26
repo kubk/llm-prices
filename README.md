@@ -4,6 +4,10 @@
 
 Quickly compare pricing across different AI providers.
 
+<p align="center">
+  <img src="public/screenshot.png" alt="Model Price Compare" width="720" />
+</p>
+
 ## Why?
 
 [OpenRouter](https://openrouter.ai/models) and [models.dev](https://models.dev/) list hundreds of models, making it hard to quickly compare pricing. This app lets you filter and sort so you can decide at a glance whether to go with a frontier model or a mid-tier reasoning one.
