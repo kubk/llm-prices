@@ -18,8 +18,27 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { RiFileCopyLine, RiCheckLine } from "@remixicon/react";
-import { Loader2 } from "lucide-react";
+import {
+  Loader2,
+  Columns3,
+  Brain,
+  Wrench,
+  Paperclip,
+  Thermometer,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type SortField = "input" | "output" | "context" | "name";
@@ -27,6 +46,9 @@ type SortDirection = "asc" | "desc";
 
 // Capability filter options based on output modalities
 type CapabilityFilter = "all" | "text" | "image" | "audio" | "video";
+
+// Optional columns that can be toggled
+type OptionalColumn = "provider" | "releaseDate" | "knowledge" | "reasoningPrice" | "capabilities";
 
 interface ModelRow {
   provider: string;
@@ -37,9 +59,16 @@ interface ModelRow {
   outputPrice: number | undefined;
   cacheReadPrice: number | undefined;
   cacheWritePrice: number | undefined;
+  reasoningPrice: number | undefined;
   contextSize: number | undefined;
   maxOutput: number | undefined;
   outputModalities: string[];
+  releaseDate: string | undefined;
+  knowledge: string | undefined;
+  hasReasoning: boolean;
+  hasToolCall: boolean;
+  hasAttachment: boolean;
+  hasTemperature: boolean;
 }
 
 // Icons that need dark:invert because they are dark on transparent background
@@ -180,9 +209,16 @@ function extractModels(catalog: ModelCatalog): ModelRow[] {
         outputPrice: model.cost?.output,
         cacheReadPrice: model.cost?.cache_read,
         cacheWritePrice: model.cost?.cache_write,
+        reasoningPrice: model.cost?.reasoning,
         contextSize: model.limit?.context,
         maxOutput: model.limit?.output,
         outputModalities: (model.modalities?.output as string[] | undefined) ?? [],
+        releaseDate: model.release_date,
+        knowledge: model.knowledge,
+        hasReasoning: model.reasoning ?? false,
+        hasToolCall: model.tool_call ?? false,
+        hasAttachment: model.attachment ?? false,
+        hasTemperature: model.temperature ?? false,
       });
     }
   }
@@ -200,6 +236,49 @@ function getAllModelsWithPricing(models: ModelRow[]): ModelRow[] {
   );
 }
 
+const COLUMN_OPTIONS: { value: OptionalColumn; label: string }[] = [
+  { value: "provider", label: "Provider" },
+  { value: "releaseDate", label: "Release date" },
+  { value: "knowledge", label: "Knowledge cutoff" },
+  { value: "reasoningPrice", label: "Reasoning price" },
+  { value: "capabilities", label: "Capability badges" },
+];
+
+const CAPABILITY_ICONS = [
+  { key: "hasReasoning" as const, icon: Brain, label: "Reasoning" },
+  { key: "hasToolCall" as const, icon: Wrench, label: "Tool calling" },
+  { key: "hasAttachment" as const, icon: Paperclip, label: "File attachments" },
+  { key: "hasTemperature" as const, icon: Thermometer, label: "Temperature control" },
+];
+
+function CapabilityBadges({ model }: { model: ModelRow }) {
+  const caps = CAPABILITY_ICONS.filter((c) => model[c.key]);
+  if (caps.length === 0) return <span className="text-muted-foreground">—</span>;
+
+  return (
+    <div className="flex items-center gap-1.5">
+      {caps.map((cap) => (
+        <Tooltip key={cap.key}>
+          <TooltipTrigger asChild>
+            <cap.icon className="size-3.5 text-muted-foreground" />
+          </TooltipTrigger>
+          <TooltipContent>{cap.label}</TooltipContent>
+        </Tooltip>
+      ))}
+    </div>
+  );
+}
+
+function formatDate(dateStr: string | undefined): string {
+  if (!dateStr) return "—";
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  } catch {
+    return dateStr;
+  }
+}
+
 export function ModelPricingTable() {
   const [models, setModels] = React.useState<ModelRow[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -209,6 +288,21 @@ export function ModelPricingTable() {
   const [capabilityFilter, setCapabilityFilter] = React.useState<CapabilityFilter>("text");
   const [sortField, setSortField] = React.useState<SortField>("input");
   const [sortDirection, setSortDirection] = React.useState<SortDirection>("desc");
+  const [visibleColumns, setVisibleColumns] = React.useState<Set<OptionalColumn>>(
+    new Set(["provider"])
+  );
+
+  const toggleColumn = (col: OptionalColumn) => {
+    setVisibleColumns((prev) => {
+      const next = new Set(prev);
+      if (next.has(col)) {
+        next.delete(col);
+      } else {
+        next.add(col);
+      }
+      return next;
+    });
+  };
 
   React.useEffect(() => {
     async function loadModels() {
@@ -443,6 +537,29 @@ export function ModelPricingTable() {
               </Select>
             </div>
 
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium border border-border bg-background text-muted-foreground hover:bg-muted transition-colors cursor-pointer">
+                  <Columns3 className="size-3.5" />
+                  More columns
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-52 p-1.5">
+                {COLUMN_OPTIONS.map((col) => (
+                  <label
+                    key={col.value}
+                    className="flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-muted transition-colors cursor-pointer"
+                  >
+                    <Checkbox
+                      checked={visibleColumns.has(col.value)}
+                      onCheckedChange={() => toggleColumn(col.value)}
+                    />
+                    {col.label}
+                  </label>
+                ))}
+              </PopoverContent>
+            </Popover>
+
             <div className="ml-auto text-xs text-muted-foreground">
               {filteredAndSortedModels.length} models
             </div>
@@ -490,6 +607,7 @@ export function ModelPricingTable() {
 
       {/* Table */}
       <div className="max-w-7xl mx-auto px-6 py-6">
+        <TooltipProvider>
         <div className="border border-border">
           <Table>
             <TableHeader>
@@ -526,7 +644,21 @@ export function ModelPricingTable() {
                   <SortIndicator field="context" />
                 </TableHead>
                 <TableHead className="text-right">Max Output</TableHead>
-                <TableHead className="w-28">Provider</TableHead>
+                {visibleColumns.has("reasoningPrice") && (
+                  <TableHead className="text-right">Reasoning</TableHead>
+                )}
+                {visibleColumns.has("releaseDate") && (
+                  <TableHead>Released</TableHead>
+                )}
+                {visibleColumns.has("knowledge") && (
+                  <TableHead>Knowledge</TableHead>
+                )}
+                {visibleColumns.has("capabilities") && (
+                  <TableHead>Capabilities</TableHead>
+                )}
+                {visibleColumns.has("provider") && (
+                  <TableHead className="w-28">Provider</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -572,22 +704,45 @@ export function ModelPricingTable() {
                   <TableCell className="text-right font-mono tabular-nums text-muted-foreground">
                     {formatTokens(model.maxOutput)}
                   </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "font-mono text-[10px] uppercase tracking-wider",
-                        "bg-muted"
-                      )}
-                    >
-                      {model.provider}
-                    </Badge>
-                  </TableCell>
+                  {visibleColumns.has("reasoningPrice") && (
+                    <TableCell className="text-right font-mono tabular-nums text-muted-foreground">
+                      {formatPrice(model.reasoningPrice)}
+                    </TableCell>
+                  )}
+                  {visibleColumns.has("releaseDate") && (
+                    <TableCell className="text-muted-foreground text-xs whitespace-nowrap">
+                      {formatDate(model.releaseDate)}
+                    </TableCell>
+                  )}
+                  {visibleColumns.has("knowledge") && (
+                    <TableCell className="text-muted-foreground text-xs whitespace-nowrap">
+                      {formatDate(model.knowledge)}
+                    </TableCell>
+                  )}
+                  {visibleColumns.has("capabilities") && (
+                    <TableCell>
+                      <CapabilityBadges model={model} />
+                    </TableCell>
+                  )}
+                  {visibleColumns.has("provider") && (
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "font-mono text-[10px] uppercase tracking-wider",
+                          "bg-muted"
+                        )}
+                      >
+                        {model.provider}
+                      </Badge>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </div>
+        </TooltipProvider>
 
         {/* Footer note */}
         <div className="mt-4 text-xs text-muted-foreground">
