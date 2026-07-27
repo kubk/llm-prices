@@ -37,6 +37,8 @@ import {
   Wrench,
   Paperclip,
   Thermometer,
+  Search,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -299,6 +301,7 @@ export function ModelPricingTable() {
   const [providerFilter, setProviderFilter] = React.useState<string>("vercel");
   const [selectedCompanies, setSelectedCompanies] = React.useState<Set<string>>(new Set());
   const [capabilityFilter, setCapabilityFilter] = React.useState<CapabilityFilter>("text");
+  const [nameFilter, setNameFilter] = React.useState("");
   const [sortField, setSortField] = React.useState<SortField>("input");
   const [sortDirection, setSortDirection] = React.useState<SortDirection>("desc");
   const [visibleColumns, setVisibleColumns] = React.useState<Set<OptionalColumn>>(
@@ -415,6 +418,13 @@ export function ModelPricingTable() {
       result = result.filter((m) => selectedCompanies.has(m.company));
     }
 
+    const normalizedNameFilter = nameFilter.trim().toLocaleLowerCase();
+    if (normalizedNameFilter) {
+      result = result.filter((m) =>
+        m.name.toLocaleLowerCase().includes(normalizedNameFilter),
+      );
+    }
+
     result.sort((a, b) => {
       let aVal: number | string | undefined;
       let bVal: number | string | undefined;
@@ -458,7 +468,13 @@ export function ModelPricingTable() {
     });
 
     return result;
-  }, [modelsFilteredByProviderAndCapability, selectedCompanies, sortField, sortDirection]);
+  }, [
+    modelsFilteredByProviderAndCapability,
+    selectedCompanies,
+    nameFilter,
+    sortField,
+    sortDirection,
+  ]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -541,7 +557,12 @@ export function ModelPricingTable() {
               <span className="text-xs text-muted-foreground uppercase tracking-wider">
                 Capability
               </span>
-              <Select value={capabilityFilter} onValueChange={(v) => setCapabilityFilter(v as CapabilityFilter)}>
+              <Select
+                value={capabilityFilter}
+                onValueChange={(v) =>
+                  setCapabilityFilter(v as CapabilityFilter)
+                }
+              >
                 <SelectTrigger className="w-40">
                   <SelectValue />
                 </SelectTrigger>
@@ -553,6 +574,42 @@ export function ModelPricingTable() {
                   <SelectItem value="video">Video generation</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="model-name-filter"
+                className="text-xs text-muted-foreground uppercase tracking-wider"
+              >
+                Name
+              </label>
+              <div className="relative">
+                <Search
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
+                />
+                <input
+                  id="model-name-filter"
+                  type="text"
+                  role="searchbox"
+                  value={nameFilter}
+                  onChange={(event) => setNameFilter(event.target.value)}
+                  placeholder="Filter models…"
+                  autoComplete="off"
+                  spellCheck={false}
+                  className="h-9 w-44 border border-input bg-background pl-8 pr-8 text-xs outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-ring focus:ring-1 focus:ring-ring/30"
+                />
+                {nameFilter && (
+                  <button
+                    type="button"
+                    aria-label="Clear name filter"
+                    onClick={() => setNameFilter("")}
+                    className="absolute right-1 top-1/2 inline-flex size-7 -translate-y-1/2 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <X aria-hidden="true" className="size-3.5" />
+                  </button>
+                )}
+              </div>
             </div>
 
             <Popover>
@@ -592,7 +649,7 @@ export function ModelPricingTable() {
                   "px-3 py-1 text-xs font-medium border transition-colors inline-flex items-center gap-1.5",
                   selectedCompanies.has(company)
                     ? "border-primary/40 bg-primary/10 text-primary"
-                    : "border-border bg-background text-muted-foreground hover:bg-muted"
+                    : "border-border bg-background text-muted-foreground hover:bg-muted",
                 )}
               >
                 <CompanyIcon
@@ -609,7 +666,9 @@ export function ModelPricingTable() {
                 onClick={() => setShowAllCompanies((prev) => !prev)}
                 className="px-2 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
-                {showAllCompanies ? "Show less" : `+${availableCompanies.length - VISIBLE_COMPANY_COUNT} more`}
+                {showAllCompanies
+                  ? "Show less"
+                  : `+${availableCompanies.length - VISIBLE_COMPANY_COUNT} more`}
               </button>
             )}
             {selectedCompanies.size > 0 && (
@@ -627,148 +686,177 @@ export function ModelPricingTable() {
       {/* Table */}
       <div className="max-w-7xl mx-auto px-6 py-6">
         <TooltipProvider>
-        <div className="border border-border overflow-x-auto">
-          <Table className="[&_[data-slot=table-container]]:overflow-visible">
-            <TableHeader>
-              <TableRow className="bg-muted/50 hover:bg-muted/50">
-                <TableHead
-                  className="cursor-pointer group sticky left-0 z-20 bg-card shadow-[inset_-1px_0_0_hsl(var(--border))] w-[150px] sm:w-auto max-w-[150px] sm:max-w-none"
-                  onClick={() => handleSort("name")}
-                >
-                  Model
-                  <SortIndicator field="name" />
-                </TableHead>
-                <TableHead
-                  className="text-right cursor-pointer group"
-                  onClick={() => handleSort("input")}
-                >
-                  Input
-                  <SortIndicator field="input" />
-                </TableHead>
-                <TableHead
-                  className="text-right cursor-pointer group"
-                  onClick={() => handleSort("output")}
-                >
-                  Output
-                  <SortIndicator field="output" />
-                </TableHead>
-                <TableHead className="text-right">
-                  <span className="text-muted-foreground">Cache</span>
-                </TableHead>
-                <TableHead
-                  className="text-right cursor-pointer group"
-                  onClick={() => handleSort("context")}
-                >
-                  Context
-                  <SortIndicator field="context" />
-                </TableHead>
-                <TableHead className="text-right">Max Output</TableHead>
-                {visibleColumns.has("reasoningPrice") && (
-                  <TableHead className="text-right">Reasoning</TableHead>
-                )}
-                {visibleColumns.has("releaseDate") && (
+          <div className="border border-border overflow-x-auto">
+            <Table className="[&_[data-slot=table-container]]:overflow-visible">
+              <TableHeader>
+                <TableRow className="bg-muted/50 hover:bg-muted/50">
                   <TableHead
-                    className="cursor-pointer group"
-                    onClick={() => handleSort("releaseDate")}
+                    className="cursor-pointer group sticky left-0 z-20 bg-card shadow-[inset_-1px_0_0_hsl(var(--border))] w-[150px] sm:w-auto max-w-[150px] sm:max-w-none"
+                    onClick={() => handleSort("name")}
                   >
-                    Released
-                    <SortIndicator field="releaseDate" />
+                    Model
+                    <SortIndicator field="name" />
                   </TableHead>
-                )}
-                {visibleColumns.has("knowledge") && (
-                  <TableHead>Knowledge</TableHead>
-                )}
-                {visibleColumns.has("capabilities") && (
-                  <TableHead>Capabilities</TableHead>
-                )}
-                {visibleColumns.has("provider") && (
-                  <TableHead className="w-28">Provider</TableHead>
-                )}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredAndSortedModels.map((model) => (
-                <TableRow
-                  key={`${model.provider}-${model.id}`}
-                  className="group hover:!bg-muted/50"
-                >
-                  <TableCell className="font-medium sticky left-0 z-10 shadow-[inset_-1px_0_0_hsl(var(--border))] bg-background group-hover:bg-muted/50 max-w-[150px] sm:max-w-none">
-                    <div className="flex items-start gap-2.5">
-                      <CompanyIcon
-                        company={model.company}
-                        colorLogoUrl={companyLogoUrls[model.company]}
-                        websiteUrl={companyWebsiteUrls[model.company]}
-                        className="size-5 mt-0.5 shrink-0 hidden sm:block"
-                      />
-                      <div className="flex flex-col min-w-0">
-                        <span className="truncate">{model.name}</span>
-                        {model.name !== model.id && (
-                          <CopyableModelName name={model.id} className="text-[10px] text-muted-foreground font-mono truncate" />
-                        )}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right font-mono tabular-nums">
-                    {formatPrice(model.inputPrice)}
-                  </TableCell>
-                  <TableCell className="text-right font-mono tabular-nums">
-                    {formatPrice(model.outputPrice)}
-                  </TableCell>
-                  <TableCell className="text-right font-mono tabular-nums text-muted-foreground">
-                    {model.cacheReadPrice !== undefined ||
-                    model.cacheWritePrice !== undefined ? (
-                      <span className="text-[10px]">
-                        R:{formatPrice(model.cacheReadPrice)} / W:
-                        {formatPrice(model.cacheWritePrice)}
-                      </span>
-                    ) : (
-                      "—"
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right font-mono tabular-nums">
-                    {formatTokens(model.contextSize)}
-                  </TableCell>
-                  <TableCell className="text-right font-mono tabular-nums text-muted-foreground">
-                    {formatTokens(model.maxOutput)}
-                  </TableCell>
+                  <TableHead
+                    className="text-right cursor-pointer group"
+                    onClick={() => handleSort("input")}
+                  >
+                    Input
+                    <SortIndicator field="input" />
+                  </TableHead>
+                  <TableHead
+                    className="text-right cursor-pointer group"
+                    onClick={() => handleSort("output")}
+                  >
+                    Output
+                    <SortIndicator field="output" />
+                  </TableHead>
+                  <TableHead className="text-right">
+                    <span className="text-muted-foreground">Cache</span>
+                  </TableHead>
+                  <TableHead
+                    className="text-right cursor-pointer group"
+                    onClick={() => handleSort("context")}
+                  >
+                    Context
+                    <SortIndicator field="context" />
+                  </TableHead>
+                  <TableHead className="text-right">Max Output</TableHead>
                   {visibleColumns.has("reasoningPrice") && (
-                    <TableCell className="text-right font-mono tabular-nums text-muted-foreground">
-                      {formatPrice(model.reasoningPrice)}
-                    </TableCell>
+                    <TableHead className="text-right">Reasoning</TableHead>
                   )}
                   {visibleColumns.has("releaseDate") && (
-                    <TableCell className="text-muted-foreground text-xs whitespace-nowrap">
-                      {formatDate(model.releaseDate)}
-                    </TableCell>
+                    <TableHead
+                      className="cursor-pointer group"
+                      onClick={() => handleSort("releaseDate")}
+                    >
+                      Released
+                      <SortIndicator field="releaseDate" />
+                    </TableHead>
                   )}
                   {visibleColumns.has("knowledge") && (
-                    <TableCell className="text-muted-foreground text-xs whitespace-nowrap">
-                      {formatDate(model.knowledge)}
-                    </TableCell>
+                    <TableHead>Knowledge</TableHead>
                   )}
                   {visibleColumns.has("capabilities") && (
-                    <TableCell>
-                      <CapabilityBadges model={model} />
-                    </TableCell>
+                    <TableHead>Capabilities</TableHead>
                   )}
                   {visibleColumns.has("provider") && (
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          "font-mono text-[10px] uppercase tracking-wider",
-                          "bg-muted"
-                        )}
-                      >
-                        {model.provider}
-                      </Badge>
-                    </TableCell>
+                    <TableHead className="w-28">Provider</TableHead>
                   )}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {filteredAndSortedModels.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6 + visibleColumns.size}
+                      className="h-32 text-center text-xs text-muted-foreground"
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <span>
+                          {nameFilter.trim()
+                            ? `No models match “${nameFilter.trim()}”.`
+                            : "No models match these filters."}
+                        </span>
+                        {nameFilter && (
+                          <button
+                            type="button"
+                            onClick={() => setNameFilter("")}
+                            className="text-foreground underline underline-offset-4 transition-colors hover:text-primary"
+                          >
+                            Clear name filter
+                          </button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredAndSortedModels.map((model) => (
+                    <TableRow
+                      key={`${model.provider}-${model.id}`}
+                      className="group hover:!bg-muted/50"
+                    >
+                      <TableCell className="font-medium sticky left-0 z-10 shadow-[inset_-1px_0_0_hsl(var(--border))] bg-background group-hover:bg-muted/50 max-w-[150px] sm:max-w-none">
+                        <div className="flex items-start gap-2.5">
+                          <CompanyIcon
+                            company={model.company}
+                            colorLogoUrl={companyLogoUrls[model.company]}
+                            websiteUrl={companyWebsiteUrls[model.company]}
+                            className="size-5 mt-0.5 shrink-0 hidden sm:block"
+                          />
+                          <div className="flex flex-col min-w-0">
+                            <span className="truncate">{model.name}</span>
+                            {model.name !== model.id && (
+                              <CopyableModelName
+                                name={model.id}
+                                className="text-[10px] text-muted-foreground font-mono truncate"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right font-mono tabular-nums">
+                        {formatPrice(model.inputPrice)}
+                      </TableCell>
+                      <TableCell className="text-right font-mono tabular-nums">
+                        {formatPrice(model.outputPrice)}
+                      </TableCell>
+                      <TableCell className="text-right font-mono tabular-nums text-muted-foreground">
+                        {model.cacheReadPrice !== undefined ||
+                        model.cacheWritePrice !== undefined ? (
+                          <span className="text-[10px]">
+                            R:{formatPrice(model.cacheReadPrice)} / W:
+                            {formatPrice(model.cacheWritePrice)}
+                          </span>
+                        ) : (
+                          "—"
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right font-mono tabular-nums">
+                        {formatTokens(model.contextSize)}
+                      </TableCell>
+                      <TableCell className="text-right font-mono tabular-nums text-muted-foreground">
+                        {formatTokens(model.maxOutput)}
+                      </TableCell>
+                      {visibleColumns.has("reasoningPrice") && (
+                        <TableCell className="text-right font-mono tabular-nums text-muted-foreground">
+                          {formatPrice(model.reasoningPrice)}
+                        </TableCell>
+                      )}
+                      {visibleColumns.has("releaseDate") && (
+                        <TableCell className="text-muted-foreground text-xs whitespace-nowrap">
+                          {formatDate(model.releaseDate)}
+                        </TableCell>
+                      )}
+                      {visibleColumns.has("knowledge") && (
+                        <TableCell className="text-muted-foreground text-xs whitespace-nowrap">
+                          {formatDate(model.knowledge)}
+                        </TableCell>
+                      )}
+                      {visibleColumns.has("capabilities") && (
+                        <TableCell>
+                          <CapabilityBadges model={model} />
+                        </TableCell>
+                      )}
+                      {visibleColumns.has("provider") && (
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "font-mono text-[10px] uppercase tracking-wider",
+                              "bg-muted",
+                            )}
+                          >
+                            {model.provider}
+                          </Badge>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </TooltipProvider>
 
         {/* Footer note */}
