@@ -1,4 +1,3 @@
 {
-  "ignore": ["components/ui/**"],
-  "ignoreDependencies": ["postcss"]
+  "ignore": ["components/ui/**"]
 }

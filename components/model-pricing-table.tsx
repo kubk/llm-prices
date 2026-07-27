@@ -1,7 +1,6 @@
-"use client";
-
 import * as React from "react";
-import { fetchModels, type ModelCatalog, type ProviderModel } from "tokenlens";
+import { fetchModels, type ModelCatalog } from "tokenlens";
+import generatedCompanyLogoUrls from "@/src/generated/company-logos.json";
 import {
   Table,
   TableBody,
@@ -41,6 +40,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const companyLogoUrls: Record<string, string> = generatedCompanyLogoUrls;
+
 type SortField = "input" | "output" | "context" | "name" | "releaseDate";
 type SortDirection = "asc" | "desc";
 
@@ -71,58 +72,44 @@ interface ModelRow {
   hasTemperature: boolean;
 }
 
-// Icons that need dark:invert because they are dark on transparent background
-const DARK_INVERT_ICONS = new Set(["openai", "meta", "meta-llama", "perplexity"]);
-
-// Company icon URLs - scraped from OpenRouter, with Google favicon fallback
-const COMPANY_ICONS: Record<string, string> = {
-  openai: "https://openrouter.ai/images/icons/OpenAI.svg",
-  google: "https://openrouter.ai/images/icons/GoogleGemini.svg",
-  anthropic: "https://openrouter.ai/images/icons/Anthropic.svg",
-  deepseek: "https://openrouter.ai/images/icons/DeepSeek.png",
-  meta: "https://openrouter.ai/images/icons/Meta.png",
-  "meta-llama": "https://openrouter.ai/images/icons/Meta.png",
-  mistral: "https://openrouter.ai/images/icons/Mistral.png",
-  mistralai: "https://openrouter.ai/images/icons/Mistral.png",
-  cohere: "https://openrouter.ai/images/icons/Cohere.png",
-  perplexity: "https://openrouter.ai/images/icons/Perplexity.svg",
-};
-
-// Fallback: Google Favicon service for companies without OpenRouter icons
-const COMPANY_WEBSITES: Record<string, string> = {
-  moonshotai: "https://moonshot.ai",
-  alibaba: "https://qwenlm.ai",
-  amazon: "https://nova.amazon.com",
-  "arcee-ai": "https://arcee.ai",
-  bytedance: "https://bytedance.com",
-  inception: "https://www.inceptionlabs.ai",
-  meituan: "https://meituan.com",
-  minimax: "https://minimaxi.com",
-  morph: "https://morph.so",
-  nvidia: "https://nvidia.com",
-  "prime-intellect": "https://www.primeintellect.ai",
-  vercel: "https://vercel.com",
-  voyage: "https://voyageai.com",
-  xai: "https://x.ai",
-  "x-ai": "https://x.ai",
-  xiaomi: "https://xiaomi.com",
-  zai: "https://zai.com",
-};
-
-function getCompanyIconUrl(company: string): string | null {
-  if (COMPANY_ICONS[company]) return COMPANY_ICONS[company];
-  if (COMPANY_WEBSITES[company]) {
-    return `https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${COMPANY_WEBSITES[company]}&size=128`;
-  }
-  return null;
+function getCompanyLogoUrl(company: string): string {
+  return `https://models.dev/logos/${encodeURIComponent(company)}.svg`;
 }
 
-function CompanyIcon({ company, className }: { company: string; className?: string }) {
-  const [error, setError] = React.useState(false);
-  const url = getCompanyIconUrl(company);
+function getCompanyFaviconUrl(websiteUrl: string): string {
+  return `https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(websiteUrl)}&size=128`;
+}
 
-  if (!url || error) {
-    // Fallback: first letter of company
+function CompanyIcon({
+  company,
+  colorLogoUrl,
+  websiteUrl,
+  className,
+}: {
+  company: string;
+  colorLogoUrl?: string;
+  websiteUrl?: string;
+  className?: string;
+}) {
+  const sources = React.useMemo(
+    () => [
+      ...(colorLogoUrl ? [{ url: colorLogoUrl, invertInDark: false }] : []),
+      ...(websiteUrl
+        ? [{ url: getCompanyFaviconUrl(websiteUrl), invertInDark: false }]
+        : []),
+      { url: getCompanyLogoUrl(company), invertInDark: true },
+    ],
+    [colorLogoUrl, company, websiteUrl],
+  );
+  const [sourceIndex, setSourceIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    setSourceIndex(0);
+  }, [colorLogoUrl, company, websiteUrl]);
+
+  const source = sources[sourceIndex];
+
+  if (!source) {
     return (
       <div className={cn("flex items-center justify-center rounded-sm bg-muted text-[9px] font-bold uppercase text-muted-foreground", className)}>
         {company.charAt(0)}
@@ -132,12 +119,37 @@ function CompanyIcon({ company, className }: { company: string; className?: stri
 
   return (
     <img
-      src={url}
+      src={source.url}
       alt={company}
-      className={cn("rounded-sm object-contain", DARK_INVERT_ICONS.has(company) && "dark:invert", className)}
-      onError={() => setError(true)}
+      className={cn(
+        "rounded-sm object-contain",
+        source.invertInDark && "dark:invert",
+        className,
+      )}
+      decoding="async"
+      onError={() => setSourceIndex((index) => index + 1)}
     />
   );
+}
+
+function getCompanyWebsiteUrls(
+  catalog: ModelCatalog,
+  models: ModelRow[],
+): Record<string, string> {
+  const urls: Record<string, string> = {};
+  const providers = Object.entries(catalog);
+
+  for (const company of new Set(models.map((model) => model.company))) {
+    const provider =
+      catalog[company] ??
+      providers.find(([providerId]) =>
+        providerId.startsWith(`${company}-`),
+      )?.[1];
+
+    if (provider?.doc) urls[company] = provider.doc;
+  }
+
+  return urls;
 }
 
 
@@ -281,6 +293,7 @@ function formatDate(dateStr: string | undefined): string {
 
 export function ModelPricingTable() {
   const [models, setModels] = React.useState<ModelRow[]>([]);
+  const [companyWebsiteUrls, setCompanyWebsiteUrls] = React.useState<Record<string, string>>({});
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [providerFilter, setProviderFilter] = React.useState<string>("vercel");
@@ -311,6 +324,7 @@ export function ModelPricingTable() {
         const allModels = extractModels(catalog);
         const modelsWithPricing = getAllModelsWithPricing(allModels);
         setModels(modelsWithPricing);
+        setCompanyWebsiteUrls(getCompanyWebsiteUrls(catalog, modelsWithPricing));
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to fetch models");
       } finally {
@@ -491,7 +505,7 @@ export function ModelPricingTable() {
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex flex-col gap-2">
             <h1 className="text-2xl font-semibold tracking-tight">
-              Model Pricing
+              LLM Prices
             </h1>
             <p className="text-muted-foreground text-sm max-w-2xl">
               Compare pricing across AI providers
@@ -581,7 +595,12 @@ export function ModelPricingTable() {
                     : "border-border bg-background text-muted-foreground hover:bg-muted"
                 )}
               >
-                <CompanyIcon company={company} className="size-3.5 shrink-0" />
+                <CompanyIcon
+                  company={company}
+                  colorLogoUrl={companyLogoUrls[company]}
+                  websiteUrl={companyWebsiteUrls[company]}
+                  className="size-3.5 shrink-0"
+                />
                 {company.charAt(0).toUpperCase() + company.slice(1)}
               </button>
             ))}
@@ -613,7 +632,7 @@ export function ModelPricingTable() {
             <TableHeader>
               <TableRow className="bg-muted/50 hover:bg-muted/50">
                 <TableHead
-                  className="cursor-pointer group sticky left-0 z-20 bg-zinc-900 shadow-[inset_-1px_0_0_hsl(var(--border))] w-[150px] sm:w-auto max-w-[150px] sm:max-w-none"
+                  className="cursor-pointer group sticky left-0 z-20 bg-card shadow-[inset_-1px_0_0_hsl(var(--border))] w-[150px] sm:w-auto max-w-[150px] sm:max-w-none"
                   onClick={() => handleSort("name")}
                 >
                   Model
@@ -668,14 +687,19 @@ export function ModelPricingTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredAndSortedModels.map((model, idx) => (
+              {filteredAndSortedModels.map((model) => (
                 <TableRow
                   key={`${model.provider}-${model.id}`}
-                  className="group hover:!bg-zinc-900"
+                  className="group hover:!bg-muted/50"
                 >
-                  <TableCell className="font-medium sticky left-0 z-10 shadow-[inset_-1px_0_0_hsl(var(--border))] bg-background group-hover:bg-zinc-900 max-w-[150px] sm:max-w-none">
+                  <TableCell className="font-medium sticky left-0 z-10 shadow-[inset_-1px_0_0_hsl(var(--border))] bg-background group-hover:bg-muted/50 max-w-[150px] sm:max-w-none">
                     <div className="flex items-start gap-2.5">
-                      <CompanyIcon company={model.company} className="size-5 mt-0.5 shrink-0 hidden sm:block" />
+                      <CompanyIcon
+                        company={model.company}
+                        colorLogoUrl={companyLogoUrls[model.company]}
+                        websiteUrl={companyWebsiteUrls[model.company]}
+                        className="size-5 mt-0.5 shrink-0 hidden sm:block"
+                      />
                       <div className="flex flex-col min-w-0">
                         <span className="truncate">{model.name}</span>
                         {model.name !== model.id && (
