@@ -302,7 +302,7 @@ export function ModelPricingTable() {
   const [sortField, setSortField] = React.useState<SortField>("input");
   const [sortDirection, setSortDirection] = React.useState<SortDirection>("desc");
   const [visibleColumns, setVisibleColumns] = React.useState<Set<OptionalColumn>>(
-    new Set<OptionalColumn>(["capabilities"])
+    new Set<OptionalColumn>(["releaseDate", "capabilities"])
   );
 
   const toggleColumn = (col: OptionalColumn) => {
