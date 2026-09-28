@@ -774,9 +774,9 @@ export function ModelPricingTable() {
                   filteredAndSortedModels.map((model) => (
                     <TableRow
                       key={`${model.provider}-${model.id}`}
-                      className="group hover:!bg-muted/50"
+                      className="transition-none hover:bg-transparent"
                     >
-                      <TableCell className="font-medium sticky left-0 z-10 shadow-[inset_-1px_0_0_hsl(var(--border))] bg-background group-hover:bg-muted/50 max-w-[150px] sm:max-w-none">
+                      <TableCell className="font-medium sticky left-0 z-10 shadow-[inset_-1px_0_0_hsl(var(--border))] bg-background max-w-[150px] sm:max-w-none">
                         <div className="flex items-start gap-2.5">
                           <CompanyIcon
                             company={model.company}
