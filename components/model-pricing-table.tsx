@@ -157,9 +157,6 @@ function getCompanyWebsiteUrls(
 
 function formatPrice(price: number | undefined): string {
   if (price === undefined || price === null) return "—";
-  if (price === 0) return "$0";
-  if (price < 0.01) return `$${price.toFixed(4)}`;
-  if (price < 1) return `$${price.toFixed(3)}`;
   return `$${price.toFixed(2)}`;
 }
 
