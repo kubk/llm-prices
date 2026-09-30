@@ -856,8 +856,7 @@ export function ModelPricingTable() {
           </div>
         </TooltipProvider>
 
-        {/* Footer note */}
-        <div className="mt-4 text-xs text-muted-foreground">
+        <footer className="mt-4 flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>
             Data sourced from{" "}
             <a
@@ -869,7 +868,24 @@ export function ModelPricingTable() {
               models.dev
             </a>
           </p>
-        </div>
+          <a
+            href="https://github.com/kubk/llm-prices"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex w-fit items-center gap-1.5 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <svg
+              aria-hidden="true"
+              className="size-4"
+              fill="currentColor"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.263.82-.582 0-.288-.01-1.05-.015-2.06-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.84 1.237 1.84 1.237 1.07 1.835 2.807 1.305 3.492.998.108-.775.42-1.305.763-1.605-2.665-.303-5.467-1.333-5.467-5.93 0-1.31.468-2.38 1.235-3.22-.124-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.3 1.23A11.49 11.49 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.29-1.552 3.296-1.23 3.296-1.23.653 1.653.243 2.873.12 3.176.77.84 1.233 1.91 1.233 3.22 0 4.61-2.807 5.624-5.48 5.92.43.37.815 1.102.815 2.222 0 1.604-.015 2.897-.015 3.292 0 .322.216.7.825.58C20.565 21.796 24 17.297 24 12c0-6.63-5.37-12-12-12z" />
+            </svg>
+            <span>Open on GitHub</span>
+          </a>
+        </footer>
       </div>
     </div>
   );
