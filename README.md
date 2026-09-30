@@ -10,7 +10,7 @@
 
 ## Why?
 
-[OpenRouter](https://openrouter.ai/models) and [models.dev](https://models.dev/) list hundreds of models, making it hard to quickly compare pricing. This app lets you filter and sort so you can decide at a glance whether to go with a frontier model or a mid-tier reasoning one.
+[OpenRouter](https://openrouter.ai/models) and [models.dev](https://models.dev/) list hundreds of models, making it hard to quickly compare pricing. This app lets you filter and sort so you can decide at a glance whether to go with a frontier model or a mid-tier one.
 
 ## Features
 
@@ -24,19 +24,3 @@
 
 TanStack Start, Cloudflare Workers, shadcn/ui, and [tokenlens](https://github.com/nichochar/tokenlens) for pricing data.
 
-## Development
-
-```bash
-pnpm install
-pnpm dev
-```
-
-Run `pnpm typecheck` and `pnpm build` before deploying.
-
-## Deployment
-
-The Cloudflare Worker is configured as `llm-prices`.
-
-```bash
-pnpm run deploy
-```
