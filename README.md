@@ -1,11 +1,11 @@
-<h1 align="center">Model Price Compare</h1>
+<h1 align="center">LLM Prices</h1>
 
 <p align="center">
   Quickly compare pricing across different AI providers · <a href="https://llm-prices.7gorbachevm.workers.dev">llm-prices.7gorbachevm.workers.dev</a>
 </p>
 
 <p align="center">
-  <img src="public/screenshot.png" alt="Model Price Compare" width="720" />
+  <img src="public/screenshot.png" alt="LLM Prices" width="720" />
 </p>
 
 ## Why?

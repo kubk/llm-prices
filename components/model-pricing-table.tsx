@@ -155,9 +155,16 @@ function getCompanyWebsiteUrls(
 }
 
 
+const usdFormatter = new Intl.NumberFormat(undefined, {
+  style: "currency",
+  currency: "USD",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
 function formatPrice(price: number | undefined): string {
   if (price === undefined || price === null) return "—";
-  return `$${price.toFixed(2)}`;
+  return usdFormatter.format(price);
 }
 
 function formatTokens(tokens: number | undefined): string {
@@ -284,7 +291,13 @@ function formatDate(dateStr: string | undefined): string {
   if (!dateStr) return "—";
   try {
     const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+    return d.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      calendar: "gregory",
+      timeZone: "UTC",
+    });
   } catch {
     return dateStr;
   }
@@ -415,10 +428,10 @@ export function ModelPricingTable() {
       result = result.filter((m) => selectedCompanies.has(m.company));
     }
 
-    const normalizedNameFilter = nameFilter.trim().toLocaleLowerCase();
+    const normalizedNameFilter = nameFilter.trim().toLowerCase();
     if (normalizedNameFilter) {
       result = result.filter((m) =>
-        m.name.toLocaleLowerCase().includes(normalizedNameFilter),
+        m.name.toLowerCase().includes(normalizedNameFilter),
       );
     }
 
