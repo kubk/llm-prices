@@ -478,7 +478,7 @@ export function ModelPricingTable() {
       setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
     } else {
       setSortField(field);
-      setSortDirection("asc");
+      setSortDirection(field === "releaseDate" ? "desc" : "asc");
     }
   };
 
