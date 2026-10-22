@@ -78,6 +78,9 @@ importers:
       knip:
         specifier: ^5.85.0
         version: 5.88.1(@types/node@22.20.1)(typescript@6.0.3)
+      slop-police:
+        specifier: ^0.2.1
+        version: 0.2.1
       tailwindcss:
         specifier: ^4
         version: 4.3.3
@@ -3164,6 +3167,31 @@ packages:
 
   sisteransi@1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
+
+  slop-police-darwin-arm64@0.2.1:
+    resolution: {integrity: sha512-DVlpwKmNdcKW0qKa4uppZc2VcvxEl9TyIRE3J5obTRCn3SZgC14yaBa7cx30Aspr8c+xh8P2PgMffhOLWkxUMA==}
+    cpu: [arm64]
+    os: [darwin]
+
+  slop-police-darwin-x64@0.2.1:
+    resolution: {integrity: sha512-K9n0x3RuXMcNMeVTunw3h8kfMiEno6cQB2LLGNanYe70EKnxVXTZpxUsPS3+f7bs8d3QZrod59IaHnj9cIhVOQ==}
+    cpu: [x64]
+    os: [darwin]
+
+  slop-police-linux-arm64@0.2.1:
+    resolution: {integrity: sha512-+b9Z4bwKPNmmfdn7cVrmoiHZQOb5EepJtkmxy29mGKKhdTMkuw6V8+stX8gMqOTe2waDnNnFPdvHmwDuisinwQ==}
+    cpu: [arm64]
+    os: [linux]
+
+  slop-police-linux-x64@0.2.1:
+    resolution: {integrity: sha512-V/hwzjiImDfmrAWhYxNdZ9ZfpdYAVU4Mcon/SAUayrDqUuhbU3Bn8lr2CRp1AJTMNp8b8voZV3U3839FvyIBDg==}
+    cpu: [x64]
+    os: [linux]
+
+  slop-police@0.2.1:
+    resolution: {integrity: sha512-4DfzSB8DqTZiJ+fJ9bPcrFj9pCTFxL9iPEdhUuqk1QH3hu2pOpMZexHtw7Q3cJ+D2XAcdnNHGmikBy1fviR3lQ==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   smol-toml@1.7.1:
     resolution: {integrity: sha512-PPlsspAZ4jbMBu5DMFhfUGDQLu/vrL4SyBROVS37x8ynnVmFIs1VPBz1Co8Xks3TvpIaZXmU85y4DrQ+UyVFoQ==}
@@ -6676,6 +6704,25 @@ snapshots:
   signal-exit@4.1.0: {}
 
   sisteransi@1.0.5: {}
+
+  slop-police-darwin-arm64@0.2.1:
+    optional: true
+
+  slop-police-darwin-x64@0.2.1:
+    optional: true
+
+  slop-police-linux-arm64@0.2.1:
+    optional: true
+
+  slop-police-linux-x64@0.2.1:
+    optional: true
+
+  slop-police@0.2.1:
+    optionalDependencies:
+      slop-police-darwin-arm64: 0.2.1
+      slop-police-darwin-x64: 0.2.1
+      slop-police-linux-arm64: 0.2.1
+      slop-police-linux-x64: 0.2.1
 
   smol-toml@1.7.1: {}
 
