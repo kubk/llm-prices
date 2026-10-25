@@ -41,7 +41,7 @@
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.1",
     "knip": "^5.85.0",
-    "slop-police": "^0.2.1",
+    "slop-police": "^0.3.7",
     "tailwindcss": "^4",
     "typescript": "^6.0.2",
     "vite": "^8.0.0",
