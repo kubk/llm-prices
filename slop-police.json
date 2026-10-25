@@ -1,17 +1,13 @@
 {
   "projects": ["tsconfig.json"],
-  "ignore": ["**/routeTree.gen.ts"],
+  "ignore": ["**/routeTree.gen.ts", "components/ui/**"],
   "testFiles": ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"],
   "rules": {
-    "unused-methods": "error",
-    "unused-object-keys": "error",
-    "no-identity-type-alias": "error",
-    "no-pass-through-getter": "error",
-    "no-redundant-value-alias": "error",
-    "no-single-string-cn": "error",
-    "no-placeholder-comment": "error",
-    "no-pass-through-wrapper": "error",
-    "no-duplicate-function": "error",
-    "no-stringified-unknown-error": "error"
+    "unused-exports": [
+      "error",
+      {
+        "entry": ["src/routes/**/*.tsx", "src/router.tsx", "vite.config.ts"]
+      }
+    ]
   }
 }
