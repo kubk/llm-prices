@@ -2,12 +2,5 @@
   "projects": ["tsconfig.json"],
   "ignore": ["**/routeTree.gen.ts", "components/ui/**"],
   "testFiles": ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"],
-  "rules": {
-    "unused-exports": [
-      "error",
-      {
-        "entry": ["src/routes/**/*.tsx", "src/router.tsx", "vite.config.ts"]
-      }
-    ]
-  }
+  "entry": ["src/routes/**/*.tsx", "src/router.tsx", "vite.config.ts"]
 }
